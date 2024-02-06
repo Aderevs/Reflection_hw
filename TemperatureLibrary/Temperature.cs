@@ -6,30 +6,30 @@ using System.Threading.Tasks;
 
 namespace TemperatureLibrary
 {
-    internal enum MeasurementUnits
+    internal class Temperature : ITemperature
     {
-        Celsius,
-        Farenheit,
-        Kelvin
-    }
-    internal class Temperature
-    {
-        public Temperature(MeasurementUnits measurementUnits, double degrees)
+        public Temperature()
+        {
+            MeasurementUnits = MeasurementUnits.Celsius;
+            Degrees = 0;
+        }
+        public Temperature(double degrees, MeasurementUnits measurementUnits)
         {
             MeasurementUnits = measurementUnits;
             Degrees = degrees;
         }
-        public Temperature(string measurementUnits, double degrees)
+        public Temperature(double degrees, string measurementUnits)
         {
+            measurementUnits = measurementUnits.ToLower();
             switch (measurementUnits)
             {
-                case "C":
+                case "c":
                     MeasurementUnits = MeasurementUnits.Celsius;
                     break;
-                case "F":
+                case "f":
                     MeasurementUnits = MeasurementUnits.Farenheit;
                     break;
-                case "K":
+                case "k":
                     MeasurementUnits = MeasurementUnits.Kelvin;
                     break;
                 default:
@@ -37,21 +37,22 @@ namespace TemperatureLibrary
             }
             Degrees = degrees;
         }
-        public MeasurementUnits MeasurementUnits { get; }
+        public MeasurementUnits MeasurementUnits { get; private set; }
         public double Degrees { get; set; }
-        public void ChangeMeasurementUnits(string newMeasurementUnits)
+        public void ConvertToOtherMeasurementUnits(string newMeasurementUnits)
         {
+            newMeasurementUnits = newMeasurementUnits.ToLower();
             if (MeasurementUnits == MeasurementUnits.Celsius)
             {
                 switch (newMeasurementUnits)
                 {
-                    case "F":
+                    case "f":
                         Degrees *= 9 / 5 + 32;
                         break;
-                    case "K":
+                    case "k":
                         Degrees += 273.15;
                         break;
-                    case "C":
+                    case "c":
                         break;
                     default:
                         throw new ArgumentException("no such measurement units for measurement temperature");
@@ -61,13 +62,13 @@ namespace TemperatureLibrary
             {
                 switch (newMeasurementUnits)
                 {
-                    case "C":
+                    case "c":
                         Degrees = ((Degrees - 32) * 5) / 9;
                         break;
-                    case "K":
+                    case "k":
                         Degrees = ((Degrees - 32) * 5) / 9 + 273.15;
                         break;
-                    case "F":
+                    case "f":
                         break;
                     default:
                         throw new ArgumentException("no such measurement units for measurement temperature");
@@ -77,29 +78,32 @@ namespace TemperatureLibrary
             {
                 switch (newMeasurementUnits)
                 {
-                    case "C":
+                    case "c":
                         Degrees -= 273.15;
                         break;
-                    case "F":
+                    case "f":
                         Degrees = 9 / 5 * (Degrees - 273.15) + 32;
                         break;
-                    case "D":
+                    case "d":
                         break;
                     default:
                         throw new ArgumentException("no such measurement units for measurement temperature");
                 }
             }
         }
-        public void ChangeMeasurementUnits(MeasurementUnits newMeasurementUnits)
+
+        public void ConvertToOtherMeasurementUnits(MeasurementUnits newMeasurementUnits)
         {
             if (MeasurementUnits == MeasurementUnits.Celsius)
             {
                 switch (newMeasurementUnits)
                 {
                     case MeasurementUnits.Farenheit:
-                        Degrees *= 9 / 5 + 32;
+                        MeasurementUnits = MeasurementUnits.Farenheit;
+                        Degrees = 9 / 5 * Degrees + 32;
                         break;
                     case MeasurementUnits.Kelvin:
+                        MeasurementUnits = MeasurementUnits.Kelvin;
                         Degrees += 273.15;
                         break;
                     default:
@@ -111,9 +115,11 @@ namespace TemperatureLibrary
                 switch (newMeasurementUnits)
                 {
                     case MeasurementUnits.Celsius:
+                        MeasurementUnits = MeasurementUnits.Celsius;
                         Degrees = ((Degrees - 32) * 5) / 9;
                         break;
                     case MeasurementUnits.Kelvin:
+                        MeasurementUnits = MeasurementUnits.Kelvin;
                         Degrees = ((Degrees - 32) * 5) / 9 + 273.15;
                         break;
                     default:
@@ -125,9 +131,11 @@ namespace TemperatureLibrary
                 switch (newMeasurementUnits)
                 {
                     case MeasurementUnits.Celsius:
+                        MeasurementUnits = MeasurementUnits.Celsius;
                         Degrees -= 273.15;
                         break;
                     case MeasurementUnits.Farenheit:
+                        MeasurementUnits = MeasurementUnits.Farenheit;
                         Degrees = 9 / 5 * (Degrees - 273.15) + 32;
                         break;
                     default:
@@ -141,9 +149,9 @@ namespace TemperatureLibrary
             string unit;
             if (MeasurementUnits == MeasurementUnits.Celsius)
                 unit = "C";
-            else if (MeasurementUnits == MeasurementUnits.Farenheit) 
+            else if (MeasurementUnits == MeasurementUnits.Farenheit)
                 unit = "F";
-            else 
+            else
                 unit = "K";
             return $"{Degrees} °{unit}";
         }
